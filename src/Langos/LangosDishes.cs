@@ -26,7 +26,7 @@ namespace HungarianTransylvanianCooking.Langos
 			"The Puszta Fryer",
 			"Balaton Beach Bites",
 			"Fokhagyma & Co.",
-			"Piața Lángos"
+			"Piata Lángos"
 		};
 
 		public override List<Dish.MenuItem> ResultingMenuItems => new()
