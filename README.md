@@ -1,10 +1,10 @@
 # PlateUp-TransylvanianHungarianCooking
 
-##Starters:
+## Starters
 - Bread (Multi) & Vinete (Multi)
 - Bread (Multi) & Liptauer (Multi)
 
-##Mains:
+## Mains
 - Lángos (Topping Variants)
 - Mazăre cu porc
 - Paprikás
@@ -13,11 +13,11 @@
 - Töltött Káposzta/Sarmale (Multi)
 - Ardei umpluți (Multi)
 
-##Sides
+## Sides
 - Lecsó (Multi)
 - Cabbage Salad (Multi)
 
-##Dessert:
+## Dessert
 - Kürtőskalács (Multi)
 - Kajszibarackos gombóc
 - Dobos (Multi)
