@@ -12,7 +12,7 @@ Models are placeholder primitives built in code (`src/Utils/Prefabs.cs`), so no 
 Needs the .NET SDK and the game's DLLs in a git-ignored `lib/` folder (subfolders are fine):
 
 - everything in `PlateUp/PlateUp_Data/Managed/`
-- `KitchenLib.dll` from the KitchenLib workshop folder (`steamapps/workshop/content/1599600/2898069883/`)
+- `KitchenLib-Workshop.dll` from the KitchenLib workshop folder (`steamapps/workshop/content/1599600/2898069883/`)
 
 ```
 dotnet build -c Release
