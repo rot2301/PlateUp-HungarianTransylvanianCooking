@@ -44,7 +44,7 @@ namespace HungarianTransylvanianCooking.Langos
 		{
 			GetGDO<Item>(ItemReferences.Flour),
 			GetGDO<Item>(ItemReferences.Oil),
-			GetGDO<Item>(ItemReferences.Pot),
+			GetGDO<Item>(ItemReferences.FryingPan),
 			GetGDO<Item>(ItemReferences.Plate)
 		};
 
@@ -66,7 +66,7 @@ namespace HungarianTransylvanianCooking.Langos
 
 		public override Dictionary<Locale, string> Recipe => new()
 		{
-			{ Locale.English, "Combine flour and oil, then knead it on a counter into a lángos. Add oil to a pot, drop the lángos in and fry it on a hob — take it out before it burns! Plate and serve." }
+			{ Locale.English, "Combine flour with oil, then knead it on a counter into a lángos. Put it in a frying pan and fry it on a hob - take it out before it burns! Plate and serve." }
 		};
 	}
 

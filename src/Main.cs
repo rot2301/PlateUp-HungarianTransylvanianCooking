@@ -11,7 +11,7 @@ using UnityEngine;
 namespace HungarianTransylvanianCooking
 {
 	// IAutoRegisterAll makes KitchenLib register every CustomGameDataObject in this assembly,
-	// so new dishes/items only need a class — no list to keep in sync here.
+	// so new dishes/items only need a class - no list to keep in sync here.
 	public class Main : BaseMod, IAutoRegisterAll
 	{
 		public const string MOD_GUID = "ruben.hungariantransylvaniancooking";

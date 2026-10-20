@@ -10,8 +10,6 @@ namespace HungarianTransylvanianCooking.Langos
 
 		private static Material Dough => Prefabs.Flat("Lángos Dough", 0xF1DDB2);
 		private static Material Fried => Prefabs.Flat("Lángos Fried", 0xD99B3C);
-		private static Material Burned => Prefabs.Flat("Lángos Burned", 0x3A2A1F);
-		private static Material Oil => Prefabs.Flat("Frying Oil", 0xE6C23F);
 		private static Material Cheese => Prefabs.Flat("Grated Cheese", 0xF8DC6E);
 		private static Material Metal => Prefabs.Material("Metal", 0x9AA0A6);
 		private static Material Plate => Prefabs.Material("Plate", 0xF4F4F0);
@@ -25,7 +23,6 @@ namespace HungarianTransylvanianCooking.Langos
 
 		public static GameObject Flat(string name) => Single(name, LangosStage.Raw);
 		public static GameObject FriedFlat(string name) => Single(name, LangosStage.Fried);
-		public static GameObject BurnedFlat(string name) => Single(name, LangosStage.Burned);
 
 		private static GameObject Single(string name, LangosStage stage)
 		{
@@ -34,15 +31,14 @@ namespace HungarianTransylvanianCooking.Langos
 			return prefab;
 		}
 
-		/// <summary>A pot of oil holding one lángos in each possible state; the ItemGroupView toggles which one shows.</summary>
-		public static GameObject FryingPot(string name, out GameObject raw, out GameObject fried, out GameObject burned)
+		/// <summary>A frying pan holding one lángos in each possible state; the ItemGroupView toggles which one shows.</summary>
+		public static GameObject FryingPan(string name, out GameObject raw, out GameObject fried)
 		{
 			var prefab = Prefabs.Create(name);
-			Prefabs.AddDisc(prefab, "Pot", 0f, 0.56f, 0.24f, Metal);
-			Prefabs.AddDisc(prefab, "Oil", 0.2f, 0.5f, 0.02f, Oil);
-			raw = AddLangos(prefab, "Raw", 0.21f, LangosStage.Raw);
-			fried = AddLangos(prefab, "Fried", 0.21f, LangosStage.Fried);
-			burned = AddLangos(prefab, "Burned", 0.21f, LangosStage.Burned);
+			Prefabs.AddDisc(prefab, "Pan", 0f, 0.62f, 0.06f, Metal);
+			Prefabs.AddPart(prefab, "Handle", PrimitiveType.Cube, new Vector3(0.48f, 0.04f, 0f), new Vector3(0.36f, 0.04f, 0.07f), Metal);
+			raw = AddLangos(prefab, "Raw", 0.06f, LangosStage.Raw);
+			fried = AddLangos(prefab, "Fried", 0.06f, LangosStage.Fried);
 			return prefab;
 		}
 
@@ -65,16 +61,11 @@ namespace HungarianTransylvanianCooking.Langos
 			return prefab;
 		}
 
-		private enum LangosStage { Raw, Fried, Burned }
+		private enum LangosStage { Raw, Fried }
 
 		private static GameObject AddLangos(GameObject parent, string name, float y, LangosStage stage)
 		{
-			var material = stage switch
-			{
-				LangosStage.Fried => Fried,
-				LangosStage.Burned => Burned,
-				_ => Dough
-			};
+			var material = stage == LangosStage.Fried ? Fried : Dough;
 			// Fried lángos puffs up, so it gets a domed sphere instead of a flat disc.
 			if (stage == LangosStage.Raw)
 				return Prefabs.AddDisc(parent, name, y, LangosDiameter, 0.03f, material);

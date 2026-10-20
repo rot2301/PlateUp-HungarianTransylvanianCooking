@@ -7,9 +7,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Lángos chain:
-//   Flour + Oil  --combine-->  Lángos Dough  --knead (counter)-->  Raw Lángos
-//   Pot + Oil (vanilla) + Raw Lángos  --combine-->  Frying Pot  --cook (hob)-->  Fried Pot  --(too long)-->  Burned Pot
-//   Fried Pot  --take out-->  Fried Lángos (+ the oil pot stays behind for the next one)
+//   Flour + Oil (from the bottle, which is kept)  --combine-->  Lángos Dough  --knead (counter)-->  Raw Lángos
+//   Frying Pan (vanilla) + Raw Lángos  --combine-->  Lángos Pan  --cook (hob)-->  Fried Pan  --(too long)-->  Burned Frying Pan (vanilla, wash it)
+//   Fried Pan  --take out-->  Fried Lángos (+ the empty pan stays behind for the next one)
 //   Plate + Fried Lángos (+ Grated Cheese once the topping card is picked)  -->  Plated Lángos
 //
 // UniqueNameIDs are hashed into save data, so never rename them after release.
@@ -29,7 +29,8 @@ namespace HungarianTransylvanianCooking.Langos
 				Items = new()
 				{
 					GetGDO<Item>(ItemReferences.Flour),
-					GetGDO<Item>(ItemReferences.Oil)
+					// The portion poured from the oil bottle; using ItemReferences.Oil would consume the bottle itself.
+					GetGDO<Item>(ItemReferences.OilIngredient)
 				},
 				IsMandatory = true,
 				Min = 2,
@@ -57,7 +58,7 @@ namespace HungarianTransylvanianCooking.Langos
 		public override ItemStorage ItemStorageFlags => ItemStorage.StackableFood;
 		public override ItemCategory ItemCategory => ItemCategory.Generic;
 
-		// Only fries inside the oil pot (the "wrapper"), never directly on a hob.
+		// Only fries inside a frying pan (the "wrapper"), never directly on a hob.
 		public override List<Item.ItemProcess> Processes => new()
 		{
 			new()
@@ -78,41 +79,22 @@ namespace HungarianTransylvanianCooking.Langos
 		public override ItemStorage ItemStorageFlags => ItemStorage.StackableFood;
 		public override ItemCategory ItemCategory => ItemCategory.Generic;
 
-		public override List<Item.ItemProcess> Processes => new()
-		{
-			new()
-			{
-				Process = GetGDO<Process>(ProcessReferences.Cook),
-				RequiresWrapper = true,
-				Result = GetCastedGDO<Item, BurnedLangos>()
-			}
-		};
-
 		private GameObject _prefab;
 		public override GameObject Prefab => _prefab ??= LangosModels.FriedFlat("Fried Langos");
 	}
 
-	public class BurnedLangos : CustomItem
+	public class LangosFryingPan : CustomItemGroup<ItemGroupView>
 	{
-		public override string UniqueNameID => "Burned Langos";
-		public override ItemCategory ItemCategory => ItemCategory.Generic;
-
-		private GameObject _prefab;
-		public override GameObject Prefab => _prefab ??= LangosModels.BurnedFlat("Burned Langos");
-	}
-
-	public class LangosFryingPot : CustomItemGroup<ItemGroupView>
-	{
-		public override string UniqueNameID => "Langos Pot - Frying";
+		public override string UniqueNameID => "Langos Pan - Frying";
 		public override ItemStorage ItemStorageFlags => ItemStorage.None;
 		public override ItemCategory ItemCategory => ItemCategory.Generic;
-		public override Item DisposesTo => GetGDO<Item>(ItemReferences.Pot);
+		public override Item DisposesTo => GetGDO<Item>(ItemReferences.FryingPan);
 
 		public override List<ItemGroup.ItemSet> Sets => new()
 		{
 			new()
 			{
-				Items = new() { GetGDO<Item>(ItemReferences.PotWithOil) },
+				Items = new() { GetGDO<Item>(ItemReferences.FryingPan) },
 				IsMandatory = true,
 				Min = 1,
 				Max = 1
@@ -131,37 +113,38 @@ namespace HungarianTransylvanianCooking.Langos
 			{
 				Process = GetGDO<Process>(ProcessReferences.Cook),
 				Duration = 4f,
-				Result = GetCastedGDO<Item, LangosFriedPot>()
+				Result = GetCastedGDO<Item, LangosFriedPan>()
 			}
 		};
 
-		public override List<ItemGroupView.ColourBlindLabel> Labels => LangosPot.Labels;
+		public override List<ItemGroupView.ColourBlindLabel> Labels => LangosPan.Labels;
 
 		private GameObject _prefab;
-		public override GameObject Prefab => _prefab ??= LangosPot.Build("Langos Pot - Frying");
-		public override void SetupPrefab(GameObject prefab) => LangosPot.SetupView(prefab);
+		public override GameObject Prefab => _prefab ??= LangosPan.Build("Langos Pan - Frying");
+		public override void SetupPrefab(GameObject prefab) => LangosPan.SetupView(prefab);
 	}
 
-	public class LangosFriedPot : CustomItemGroup<ItemGroupView>
+	public class LangosFriedPan : CustomItemGroup<ItemGroupView>
 	{
-		public override string UniqueNameID => "Langos Pot - Fried";
+		public override string UniqueNameID => "Langos Pan - Fried";
 		public override ItemStorage ItemStorageFlags => ItemStorage.None;
 		public override ItemCategory ItemCategory => ItemCategory.Generic;
-		public override Item DisposesTo => GetGDO<Item>(ItemReferences.Pot);
+		public override Item DisposesTo => GetGDO<Item>(ItemReferences.FryingPan);
 
-		// Components (the lángos) carry over from the frying pot and get cooked along with it.
+		// Components (the lángos) carry over from the frying pan and get cooked along with it.
 		public override List<ItemGroup.ItemSet> Sets => new();
 		public override bool ApplyProcessesToComponents => true;
 
-		// Taking from the pot hands out the fried lángos and leaves the oil pot behind.
+		// Taking from the pan hands out the fried lángos and leaves the empty pan behind.
 		public override bool PreventExplicitSplit => true;
 		public override bool AllowSplitMerging => true;
 		public override bool SplitByComponents => true;
-		public override Item SplitByComponentsHolder => GetGDO<Item>(ItemReferences.PotWithOil);
-		public override Item RefuseSplitWith => GetGDO<Item>(ItemReferences.PotWithOil);
+		public override Item SplitByComponentsHolder => GetGDO<Item>(ItemReferences.FryingPan);
+		public override Item RefuseSplitWith => GetGDO<Item>(ItemReferences.FryingPan);
 		public override int SplitCount => 1;
-		public override List<Item> SplitDepletedItems => new() { GetGDO<Item>(ItemReferences.PotWithOil) };
+		public override List<Item> SplitDepletedItems => new() { GetGDO<Item>(ItemReferences.FryingPan) };
 
+		// Left too long it burns like a vanilla fajita pan: the lángos is lost and the pan needs washing.
 		public override List<Item.ItemProcess> Processes => new()
 		{
 			new()
@@ -169,33 +152,19 @@ namespace HungarianTransylvanianCooking.Langos
 				Process = GetGDO<Process>(ProcessReferences.Cook),
 				Duration = 6f,
 				IsBad = true,
-				Result = GetCastedGDO<Item, LangosBurnedPot>()
+				Result = GetGDO<Item>(ItemReferences.FryingPanBurned)
 			}
 		};
 
-		public override List<ItemGroupView.ColourBlindLabel> Labels => LangosPot.Labels;
+		public override List<ItemGroupView.ColourBlindLabel> Labels => LangosPan.Labels;
 
 		private GameObject _prefab;
-		public override GameObject Prefab => _prefab ??= LangosPot.Build("Langos Pot - Fried");
-		public override void SetupPrefab(GameObject prefab) => LangosPot.SetupView(prefab);
+		public override GameObject Prefab => _prefab ??= LangosPan.Build("Langos Pan - Fried");
+		public override void SetupPrefab(GameObject prefab) => LangosPan.SetupView(prefab);
 	}
 
-	public class LangosBurnedPot : CustomItemGroup<ItemGroupView>
-	{
-		public override string UniqueNameID => "Langos Pot - Burned";
-		public override ItemStorage ItemStorageFlags => ItemStorage.None;
-		public override ItemCategory ItemCategory => ItemCategory.Generic;
-		public override Item DisposesTo => GetGDO<Item>(ItemReferences.Pot);
-		public override List<ItemGroup.ItemSet> Sets => new();
-		public override bool ApplyProcessesToComponents => true;
-
-		private GameObject _prefab;
-		public override GameObject Prefab => _prefab ??= LangosPot.Build("Langos Pot - Burned");
-		public override void SetupPrefab(GameObject prefab) => LangosPot.SetupView(prefab);
-	}
-
-	/// <summary>Shared model + view wiring for the three oil-pot states.</summary>
-	internal static class LangosPot
+	/// <summary>Shared model + view wiring for the two frying-pan states.</summary>
+	internal static class LangosPan
 	{
 		public static List<ItemGroupView.ColourBlindLabel> Labels => new()
 		{
@@ -203,7 +172,7 @@ namespace HungarianTransylvanianCooking.Langos
 			new() { Item = GetCastedGDO<Item, FriedLangos>(), Text = "FL" }
 		};
 
-		public static GameObject Build(string name) => LangosModels.FryingPot(name, out _, out _, out _);
+		public static GameObject Build(string name) => LangosModels.FryingPan(name, out _, out _);
 
 		public static void SetupView(GameObject prefab)
 		{
@@ -211,8 +180,7 @@ namespace HungarianTransylvanianCooking.Langos
 			view.ComponentGroups = new()
 			{
 				new() { Item = GetCastedGDO<Item, RawLangos>(), Objects = new() { prefab.GetChild("Raw") } },
-				new() { Item = GetCastedGDO<Item, FriedLangos>(), Objects = new() { prefab.GetChild("Fried") } },
-				new() { Item = GetCastedGDO<Item, BurnedLangos>(), Objects = new() { prefab.GetChild("Burned") } }
+				new() { Item = GetCastedGDO<Item, FriedLangos>(), Objects = new() { prefab.GetChild("Fried") } }
 			};
 		}
 	}
