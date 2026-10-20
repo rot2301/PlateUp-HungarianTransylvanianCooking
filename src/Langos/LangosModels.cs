@@ -98,15 +98,25 @@ namespace HungarianTransylvanianCooking.Langos
 
 			Prefabs.AddPart(langos, "Middle", PrimitiveType.Sphere, new Vector3(0f, 0.03f, 0f), new Vector3(0.34f, 0.04f, 0.34f), Fried);
 
-			const int rimPuffs = 12;
-			const float puffSize = 0.12f;
+			// Hand-stretched dough puffs up unevenly, so each puff gets its own size, height, spacing and reach.
+			// A fixed seed keeps every lángos the same shape.
+			var random = new System.Random(1957);
+			float Vary(float value, float amount) => value * (1f + ((float)random.NextDouble() * 2f - 1f) * amount);
+
+			const int rimPuffs = 14;
+			const float puffSize = 0.11f;
 			float rimRadius = (LangosDiameter - puffSize) / 2f;
 			for (int i = 0; i < rimPuffs; i++)
 			{
-				float angle = i * Mathf.PI * 2f / rimPuffs;
-				Prefabs.AddPart(langos, $"Rim {i}", PrimitiveType.Sphere,
-					new Vector3(Mathf.Cos(angle) * rimRadius, 0.035f, Mathf.Sin(angle) * rimRadius),
-					new Vector3(puffSize, 0.07f, puffSize), FriedEdge);
+				float angle = (i + Vary(1f, 0.35f) - 1f) * Mathf.PI * 2f / rimPuffs;
+				float radius = Vary(rimRadius, 0.08f);
+				float width = Vary(puffSize, 0.3f);
+				float height = Vary(0.07f, 0.3f);
+				var puff = Prefabs.AddPart(langos, $"Rim {i}", PrimitiveType.Sphere,
+					new Vector3(Mathf.Cos(angle) * radius, height / 2f, Mathf.Sin(angle) * radius),
+					// Stretched along the rim so neighbouring puffs blend into a bumpy ring.
+					new Vector3(width, height, Vary(width, 0.25f) * 1.3f), FriedEdge);
+				puff.transform.localRotation = Quaternion.Euler(0f, -angle * Mathf.Rad2Deg, 0f);
 			}
 			return langos;
 		}
