@@ -6,3 +6,4 @@ obj/
 Directory.Build.props
 lib/
 .DS_Store
+*.log
