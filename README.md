@@ -11,7 +11,7 @@ A PlateUp! mod adding Hungarian and Transylvanian dishes. Built on [KitchenLib](
   - **Hagymás**: chopped onion
   - **Savanyúságos**: pickles
   - **Sonkás**: chopped Hungarian smoked ham (new provider)
-- **Édes Lángos** (main card): melted chocolate and/or chopped nuts. Sweet and savoury toppings never mix.
+- **Édes Lángos** (main card): chocolate syrup (vanilla Sundae syrup bottle) and/or chopped nuts. Sweet and savoury toppings never mix.
 
 Models are placeholder primitives built in code (`src/Utils/Prefabs.cs`), so no Unity project is needed yet.
 

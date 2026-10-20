@@ -30,6 +30,7 @@ namespace HungarianTransylvanianCooking.Debugging
 			("SourceHam", ApplianceReferences.SourceHam),
 			("SourcePickle", ApplianceReferences.SourcePickle),
 			("SourceChocolate", ApplianceReferences.SourceChocolate),
+			("SourceChocolateSyrup", ApplianceReferences.SourceChocolateSyrup),
 			("SourceNuts", ApplianceReferences.SourceNuts),
 			("SourceCheese", ApplianceReferences.SourceCheese),
 			("SourceOil", ApplianceReferences.SourceOil)
@@ -41,6 +42,9 @@ namespace HungarianTransylvanianCooking.Debugging
 			("PickleJar", ItemReferences.PickleJar),
 			("Oil", ItemReferences.Oil),
 			("OilIngredient", ItemReferences.OilIngredient),
+			("SundaeSyrupChocolate", ItemReferences.SundaeSyrupChocolate),
+			("SundaeSyrupChocolateServing", ItemReferences.SundaeSyrupChocolateServing),
+			("ChocolateMelted", ItemReferences.ChocolateMelted),
 			("FryingPan", ItemReferences.FryingPan),
 			("FryingPanBurned", ItemReferences.FryingPanBurned)
 		};

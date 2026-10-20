@@ -21,7 +21,7 @@ namespace HungarianTransylvanianCooking.Langos
 		private static Material Pickle => Prefabs.Flat("Pickle", 0x7E9A3A);
 		private static Material Ham => Prefabs.Flat("Smoked Ham", 0xC96B63);
 		private static Material HamRind => Prefabs.Flat("Smoked Ham Rind", 0x6B3A22);
-		private static Material Chocolate => Prefabs.Flat("Melted Chocolate", 0x4A2A18);
+		private static Material Chocolate => Prefabs.Flat("Chocolate Syrup", 0x4A2A18);
 		private static Material Nuts => Prefabs.Flat("Chopped Nuts", 0xC9A06A);
 		private static Material Metal => Prefabs.Material("Metal", 0x9AA0A6);
 		private static Material Plate => Prefabs.Material("Plate", 0xF4F4F0);
@@ -97,7 +97,7 @@ namespace HungarianTransylvanianCooking.Langos
 						Prefabs.AddDisc(group, "Spread", spread, 0.24f, 0.012f, Cream);
 						break;
 					case LangosTopping.Chocolate:
-						Prefabs.AddDisc(group, "Spread", spread, 0.26f, 0.012f, Chocolate);
+						AddSpiralDrizzle(group, spread + 0.008f, Chocolate);
 						break;
 					case LangosTopping.Garlic:
 						Scatter(group, PrimitiveType.Cube, 9, 20f, 0.03f, 0.11f, new Vector3(0.022f, 0.015f, 0.022f), bits, MincedGarlic);
@@ -125,6 +125,43 @@ namespace HungarianTransylvanianCooking.Langos
 				}
 			}
 			return prefab;
+		}
+
+		/// <summary>
+		/// A snail-shell drizzle: one strand spiralling out from the centre, built from short capsules laid end to end so
+		/// their rounded ends blend into a continuous line.
+		/// </summary>
+		private static void AddSpiralDrizzle(GameObject group, float y, Material material)
+		{
+			const float innerRadius = 0.015f;
+			const float outerRadius = 0.135f;
+			const float turns = 2.5f;
+			const float width = 0.032f;
+			const float thickness = 0.016f;
+			const float segment = 0.03f;
+
+			// Archimedean spiral: the radius grows evenly with the angle.
+			float growth = (outerRadius - innerRadius) / (turns * Mathf.PI * 2f);
+			Vector3 Point(float angle)
+			{
+				float radius = innerRadius + growth * angle;
+				return new Vector3(Mathf.Cos(angle) * radius, y, Mathf.Sin(angle) * radius);
+			}
+
+			float theta = 0f;
+			for (int i = 0; theta < turns * Mathf.PI * 2f; i++)
+			{
+				// Step by roughly equal lengths along the strand, so the tight middle doesn't bunch up.
+				float radius = innerRadius + growth * theta;
+				float next = theta + segment / Mathf.Max(radius, 0.02f);
+				Vector3 from = Point(theta), to = Point(next);
+
+				var piece = Prefabs.AddPart(group, $"Strand {i}", PrimitiveType.Capsule, (from + to) / 2f, Vector3.one, material);
+				// Capsules stand along their local y axis (2 units tall); lay each one flat, pointing along the strand.
+				piece.transform.localRotation = Quaternion.LookRotation(to - from, Vector3.up) * Quaternion.Euler(90f, 0f, 0f);
+				piece.transform.localScale = new Vector3(width, (Vector3.Distance(from, to) + width) / 2f, thickness);
+				theta = next;
+			}
 		}
 
 		/// <summary>

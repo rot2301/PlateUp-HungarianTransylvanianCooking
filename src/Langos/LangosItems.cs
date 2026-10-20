@@ -221,7 +221,8 @@ namespace HungarianTransylvanianCooking.Langos
 
 		public static List<Topping> Sweet => new()
 		{
-			new(LangosTopping.Chocolate, GetGDO<Item>(ItemReferences.ChocolateMelted), "Co"),
+			// Drizzled from the vanilla chocolate syrup bottle (Sundaes), which stays in hand like the oil bottle.
+			new(LangosTopping.Chocolate, GetGDO<Item>(ItemReferences.SundaeSyrupChocolateServing), "Co"),
 			new(LangosTopping.Nuts, GetGDO<Item>(ItemReferences.NutsChopped), "N")
 		};
 

@@ -70,7 +70,7 @@ namespace HungarianTransylvanianCooking.Langos
 		};
 	}
 
-	/// <summary>Main card: sweet lángos with melted chocolate and/or chopped nuts, never mixed with savoury toppings.</summary>
+	/// <summary>Main card: sweet lángos with chocolate syrup and/or chopped nuts, never mixed with savoury toppings.</summary>
 	public class LangosSweetDish : CustomDish
 	{
 		public override string UniqueNameID => "Langos Sweet Dish";
@@ -94,15 +94,15 @@ namespace HungarianTransylvanianCooking.Langos
 			}
 		};
 
+		// The syrup bottle brings its provider (the Sundaes chocolate syrup stand); customers get its servings.
 		public override HashSet<Item> MinimumIngredients => new()
 		{
-			GetGDO<Item>(ItemReferences.Chocolate),
+			GetGDO<Item>(ItemReferences.SundaeSyrupChocolate),
 			GetGDO<Item>(ItemReferences.NutsIngredient)
 		};
 
 		public override HashSet<Process> RequiredProcesses => new()
 		{
-			GetGDO<Process>(ProcessReferences.Cook),
 			GetGDO<Process>(ProcessReferences.Chop)
 		};
 
@@ -113,12 +113,12 @@ namespace HungarianTransylvanianCooking.Langos
 
 		public override List<(Locale, UnlockInfo)> InfoList => new()
 		{
-			(Locale.English, CreateUnlockInfo("Édes Lángos", "Adds sweet lángos as a main, topped with melted chocolate and/or chopped nuts.", "Nobody said lángos had to be savoury."))
+			(Locale.English, CreateUnlockInfo("Édes Lángos", "Adds sweet lángos as a main, topped with chocolate syrup and/or chopped nuts.", "Nobody said lángos had to be savoury."))
 		};
 
 		public override Dictionary<Locale, string> Recipe => new()
 		{
-			{ Locale.English, "Melt chocolate on a hob and/or chop nuts, then add them to a plated lángos. Sweet and savoury toppings can't go on the same lángos." }
+			{ Locale.English, "Drizzle chocolate syrup from the bottle and/or add chopped nuts to a plated lángos. Sweet and savoury toppings can't go on the same lángos." }
 		};
 	}
 
