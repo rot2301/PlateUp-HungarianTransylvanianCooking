@@ -9,21 +9,18 @@
 		<!-- 0618: KitchenLib marks some helpers we rely on as [Obsolete] -->
 		<NoWarn>CS0114;CS0618</NoWarn>
 		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
-		<!-- Keep the built DLL in bin/ instead of copying it into the game's Mods folder -->
-		<EnableModDeployLocal>false</EnableModDeployLocal>
+		<GenerateDocumentationFile>false</GenerateDocumentationFile>
 	</PropertyGroup>
 
 	<!--
-		The build package finds PlateUp through Steam automatically to reference the game's DLLs.
-		The built DLL stays in bin/<Configuration>/net472/. If it can't find the game, pass the
-		folder that contains PlateUp.exe, e.g.
-
-			dotnet build -c Release -p:GamePath="D:\SteamLibrary\steamapps\common\PlateUp\PlateUp"
-
-		or put <GamePath> in a git-ignored Directory.Build.props next to this file.
+		References come from the git-ignored lib/ folder: copy PlateUp/PlateUp_Data/Managed/*.dll
+		plus KitchenLib.dll (and any other mod DLLs) from the workshop folder into it.
+		The built DLL goes to bin/<Configuration>/net472/.
 	-->
 	<ItemGroup>
-		<PackageReference Include="Yariazen.PlateUp.ModBuildUtilities" Version="1.13.0" />
+		<!-- These clash with the .NET Framework reference assemblies -->
+		<LibBlacklist Include="lib/**/System.Buffers.dll;lib/**/Microsoft.Extensions.Logging.Abstractions.dll;lib/**/Mono.Posix.dll;lib/**/Mono.Security.dll;lib/**/System.Memory.dll;lib/**/System.Runtime.CompilerServices.Unsafe.dll" />
+		<Reference Include="lib/**/*.dll" Exclude="@(LibBlacklist)" Private="false" />
 	</ItemGroup>
 
 </Project>

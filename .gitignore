@@ -4,3 +4,5 @@ obj/
 .idea/
 *.user
 Directory.Build.props
+lib/
+.DS_Store

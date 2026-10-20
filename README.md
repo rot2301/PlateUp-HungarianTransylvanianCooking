@@ -9,13 +9,16 @@ A PlateUp! mod adding Hungarian and Transylvanian dishes. Built on [KitchenLib](
 Models are placeholder primitives built in code (`src/Utils/Prefabs.cs`), so no Unity project is needed yet.
 
 ## Building
-Needs the .NET SDK and a PlateUp install (the build references the game's DLLs). PlateUp is Windows-only, so build on the machine that has the game:
+Needs the .NET SDK and the game's DLLs in a git-ignored `lib/` folder (subfolders are fine):
+
+- everything in `PlateUp/PlateUp_Data/Managed/`
+- `KitchenLib.dll` from the KitchenLib workshop folder (`steamapps/workshop/content/1599600/2898069883/`)
 
 ```
 dotnet build -c Release
 ```
 
-The build finds PlateUp through Steam to reference the game's DLLs and writes `HungarianTransylvanianCooking-Workshop.dll` to `bin/<Configuration>/net472/`. If it can't find the game, pass `-p:GamePath="<folder containing PlateUp.exe>"`.
+The build writes `HungarianTransylvanianCooking-Workshop.dll` to `bin/<Configuration>/net472/`.
 
 # Ideas
 
