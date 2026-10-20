@@ -15,7 +15,7 @@ Needs the .NET SDK and a PlateUp install (the build references the game's DLLs).
 dotnet build -c Release
 ```
 
-The build finds PlateUp through Steam and copies the DLL to `PlateUp/Mods/HungarianTransylvanianCooking/content/`. If it can't find the game, pass `-p:GamePath="<folder containing PlateUp.exe>"`.
+The build finds PlateUp through Steam to reference the game's DLLs and writes `HungarianTransylvanianCooking-Workshop.dll` to `bin/<Configuration>/net472/`. If it can't find the game, pass `-p:GamePath="<folder containing PlateUp.exe>"`.
 
 # Ideas
 
