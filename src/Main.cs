@@ -25,6 +25,10 @@ namespace HungarianTransylvanianCooking
 		protected override void OnPostActivate(Mod mod)
 		{
 			LogInfo($"v{MOD_VERSION} loaded");
+#if DEBUG
+			LogInfo("Debug build: dumping vanilla data and unlocking all lángos cards in lángos runs");
+			Debugging.GameDataDump.Register();
+#endif
 		}
 
 		public static T GetGDO<T>(int id) where T : GameDataObject => GetExistingGDO(id) as T;

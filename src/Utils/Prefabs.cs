@@ -52,6 +52,59 @@ namespace HungarianTransylvanianCooking.Utils
 		public static GameObject AddDisc(GameObject parent, string name, float y, float diameter, float thickness, Material material)
 			=> AddPart(parent, name, PrimitiveType.Cylinder, new Vector3(0f, y + thickness / 2f, 0f), new Vector3(diameter, thickness / 2f, diameter), material);
 
+		/// <summary>A cup-like cone stump with closed ends, its base at <paramref name="position"/>. Unity has no primitive for this.</summary>
+		public static GameObject AddFrustum(GameObject parent, string name, Vector3 position, float bottomDiameter, float topDiameter, float height, Material material, int segments = 20)
+		{
+			var vertices = new List<Vector3>();
+			var triangles = new List<int>();
+			float bottom = bottomDiameter / 2f, top = topDiameter / 2f;
+
+			// Sides: their own vertices so the caps' hard edges don't smooth into them.
+			for (int i = 0; i <= segments; i++)
+			{
+				float angle = i * Mathf.PI * 2f / segments;
+				var direction = new Vector3(Mathf.Cos(angle), 0f, Mathf.Sin(angle));
+				vertices.Add(direction * bottom);
+				vertices.Add(direction * top + Vector3.up * height);
+			}
+			for (int i = 0; i < segments; i++)
+			{
+				int b0 = i * 2, t0 = b0 + 1, b1 = b0 + 2, t1 = b0 + 3;
+				triangles.AddRange(new[] { b0, t0, t1, b0, t1, b1 });
+			}
+
+			void AddCap(float radius, float y, bool facingUp)
+			{
+				int centre = vertices.Count;
+				vertices.Add(new Vector3(0f, y, 0f));
+				for (int i = 0; i < segments; i++)
+				{
+					float angle = i * Mathf.PI * 2f / segments;
+					vertices.Add(new Vector3(Mathf.Cos(angle) * radius, y, Mathf.Sin(angle) * radius));
+				}
+				for (int i = 0; i < segments; i++)
+				{
+					int a = centre + 1 + i, b = centre + 1 + (i + 1) % segments;
+					triangles.AddRange(facingUp ? new[] { centre, b, a } : new[] { centre, a, b });
+				}
+			}
+			AddCap(top, height, facingUp: true);
+			AddCap(bottom, 0f, facingUp: false);
+
+			var mesh = new Mesh { name = $"HTC - Frustum {name}" };
+			mesh.SetVertices(vertices);
+			mesh.SetTriangles(triangles, 0);
+			mesh.RecalculateNormals();
+			mesh.RecalculateBounds();
+
+			var part = new GameObject(name);
+			part.transform.SetParent(parent.transform, false);
+			part.transform.localPosition = position;
+			part.AddComponent<MeshFilter>().sharedMesh = mesh;
+			part.AddComponent<MeshRenderer>().sharedMaterial = material;
+			return part;
+		}
+
 		/// <summary>
 		/// Bounds of every mesh under <paramref name="part"/>, in <paramref name="root"/>'s local space.
 		/// Works on inactive prefabs, unlike Renderer.bounds.

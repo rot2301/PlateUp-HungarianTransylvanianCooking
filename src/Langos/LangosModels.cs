@@ -129,15 +129,24 @@ namespace HungarianTransylvanianCooking.Langos
 			return prefab;
 		}
 
-		/// <summary>Pieces spread around the middle, alternating between an inner and outer ring and turned every which way.</summary>
+		/// <summary>
+		/// Pieces strewn loosely around the middle: uneven spacing, distance, size and tilt, so they read as tossed on rather
+		/// than laid out. Seeded from the arguments, so every copy of a model gets the same scatter.
+		/// </summary>
 		private static void Scatter(GameObject group, PrimitiveType type, int count, float startAngle, float innerRadius, float outerRadius, Vector3 scale, float y, Material material)
 		{
+			var random = new System.Random(count * 7919 + (int)(startAngle * 31f) + (int)(outerRadius * 1000f));
+			float Between(float min, float max) => min + (float)random.NextDouble() * (max - min);
+
+			float step = 360f / count;
 			for (int i = 0; i < count; i++)
 			{
-				float angle = (startAngle + i * 360f / count) * Mathf.Deg2Rad;
-				float radius = i % 2 == 0 ? outerRadius : innerRadius;
-				var piece = Prefabs.AddPart(group, $"Piece {i}", type, new Vector3(Mathf.Cos(angle) * radius, y, Mathf.Sin(angle) * radius), scale, material);
-				piece.transform.localRotation = Quaternion.Euler(0f, startAngle + i * 47f, 0f);
+				float angle = (startAngle + i * step + Between(-0.4f, 0.4f) * step) * Mathf.Deg2Rad;
+				// Square root spreads pieces evenly over the ring's area instead of bunching them at the inner edge.
+				float radius = Mathf.Lerp(innerRadius, outerRadius, Mathf.Sqrt(Between(0f, 1f)));
+				var size = scale * Between(0.8f, 1.2f);
+				var piece = Prefabs.AddPart(group, $"Piece {i}", type, new Vector3(Mathf.Cos(angle) * radius, y + Between(-0.004f, 0.004f), Mathf.Sin(angle) * radius), size, material);
+				piece.transform.localRotation = Quaternion.Euler(Between(-12f, 12f), Between(0f, 360f), Between(-12f, 12f));
 			}
 		}
 
@@ -162,11 +171,13 @@ namespace HungarianTransylvanianCooking.Langos
 			return prefab;
 		}
 
-		public static GameObject SourCreamTub(string name)
+		/// <summary>A tejföl cup: tapered towards the bottom, with the cream showing at the top.</summary>
+		public static GameObject SourCreamCup(string name)
 		{
 			var prefab = Prefabs.Create(name);
-			Prefabs.AddDisc(prefab, "Tub", 0f, 0.2f, 0.12f, Tub);
-			Prefabs.AddDisc(prefab, "Cream", 0.12f, 0.18f, 0.01f, Cream);
+			Prefabs.AddFrustum(prefab, "Cup", Vector3.zero, 0.14f, 0.2f, 0.13f, Tub);
+			Prefabs.AddFrustum(prefab, "Rim", new Vector3(0f, 0.13f, 0f), 0.21f, 0.21f, 0.012f, Tub);
+			Prefabs.AddDisc(prefab, "Cream", 0.128f, 0.19f, 0.01f, Cream);
 			return prefab;
 		}
 
@@ -183,7 +194,11 @@ namespace HungarianTransylvanianCooking.Langos
 		public static GameObject ChoppedHam(string name)
 		{
 			var prefab = Prefabs.Create(name);
-			Scatter(prefab, PrimitiveType.Cube, 6, 0f, 0.03f, 0.08f, new Vector3(0.06f, 0.05f, 0.06f), 0.025f, Ham);
+			// A loose heap: a wide bottom layer and a few pieces tumbled on top.
+			Scatter(prefab, PrimitiveType.Cube, 7, 10f, 0.02f, 0.1f, new Vector3(0.06f, 0.045f, 0.06f), 0.023f, Ham);
+			var top = new GameObject("Top");
+			top.transform.SetParent(prefab.transform, false);
+			Scatter(top, PrimitiveType.Cube, 3, 75f, 0f, 0.045f, new Vector3(0.055f, 0.045f, 0.055f), 0.06f, Ham);
 			return prefab;
 		}
 

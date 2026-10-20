@@ -60,6 +60,7 @@ namespace HungarianTransylvanianCooking.Langos
 	public class RawLangos : CustomItem
 	{
 		public override string UniqueNameID => "Raw Langos";
+		public override string ColourBlindTag => "L";
 		public override ItemStorage ItemStorageFlags => ItemStorage.StackableFood;
 		public override ItemCategory ItemCategory => ItemCategory.Generic;
 
@@ -81,6 +82,7 @@ namespace HungarianTransylvanianCooking.Langos
 	public class FriedLangos : CustomItem
 	{
 		public override string UniqueNameID => "Fried Langos";
+		public override string ColourBlindTag => "FL";
 		public override ItemStorage ItemStorageFlags => ItemStorage.StackableFood;
 		public override ItemCategory ItemCategory => ItemCategory.Generic;
 
