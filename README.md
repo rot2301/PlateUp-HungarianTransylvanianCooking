@@ -1,6 +1,6 @@
-# PlateUp-TransylvanianHungarianCooking
+# PlateUp-HungarianTransylvanianCooking
 
-A PlateUp! mod adding Transylvanian and Hungarian dishes. Built on [KitchenLib](https://steamcommunity.com/sharedfiles/filedetails/?id=2898069883), which must also be installed.
+A PlateUp! mod adding Hungarian and Transylvanian dishes. Built on [KitchenLib](https://steamcommunity.com/sharedfiles/filedetails/?id=2898069883), which must also be installed.
 
 ## Implemented
 - **Lángos** (starting dish): combine flour + oil, knead on a counter, fry in a pot of oil on a hob, plate.
@@ -15,7 +15,7 @@ Needs the .NET SDK and a PlateUp install (the build references the game's DLLs).
 dotnet build -c Release
 ```
 
-The build finds PlateUp through Steam and copies the DLL to `PlateUp/Mods/TransylvanianHungarianCooking/content/`. If it can't find the game, pass `-p:GamePath="<folder containing PlateUp.exe>"`.
+The build finds PlateUp through Steam and copies the DLL to `PlateUp/Mods/HungarianTransylvanianCooking/content/`. If it can't find the game, pass `-p:GamePath="<folder containing PlateUp.exe>"`.
 
 # Ideas
 

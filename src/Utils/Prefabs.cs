@@ -2,7 +2,7 @@ using KitchenLib.Materials;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TransylvanianHungarianCooking.Utils
+namespace HungarianTransylvanianCooking.Utils
 {
 	/// <summary>
 	/// Builds placeholder models out of Unity primitives so the mod is playable without a Unity asset bundle.
@@ -61,7 +61,7 @@ namespace TransylvanianHungarianCooking.Utils
 
 		public static Material Flat(string name, int hex)
 		{
-			string key = $"THC - {name}";
+			string key = $"HTC - {name}";
 			if (_materials.TryGetValue(key, out var cached))
 				return cached;
 

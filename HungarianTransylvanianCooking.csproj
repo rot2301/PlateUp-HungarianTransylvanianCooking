@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
 		<AssemblyName>$(MSBuildProjectName)-Workshop</AssemblyName>
-		<RootNamespace>TransylvanianHungarianCooking</RootNamespace>
+		<RootNamespace>HungarianTransylvanianCooking</RootNamespace>
 		<LangVersion>latest</LangVersion>
 		<Nullable>disable</Nullable>
 		<!-- 0618: KitchenLib marks some helpers we rely on as [Obsolete] -->
@@ -13,7 +13,7 @@
 
 	<!--
 		The build package finds PlateUp through Steam automatically and deploys the built DLL to
-		<PlateUp>/Mods/TransylvanianHungarianCooking/content/. If it can't find the game, pass the
+		<PlateUp>/Mods/HungarianTransylvanianCooking/content/. If it can't find the game, pass the
 		folder that contains PlateUp.exe, e.g.
 
 			dotnet build -c Release -p:GamePath="D:\SteamLibrary\steamapps\common\PlateUp\PlateUp"

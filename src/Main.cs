@@ -1,6 +1,6 @@
 global using static KitchenLib.Utils.GDOUtils;
 global using static KitchenLib.Utils.LocalisationUtils;
-global using static TransylvanianHungarianCooking.Main;
+global using static HungarianTransylvanianCooking.Main;
 using KitchenData;
 using KitchenLib;
 using KitchenLib.Interfaces;
@@ -8,14 +8,14 @@ using KitchenMods;
 using System.Reflection;
 using UnityEngine;
 
-namespace TransylvanianHungarianCooking
+namespace HungarianTransylvanianCooking
 {
 	// IAutoRegisterAll makes KitchenLib register every CustomGameDataObject in this assembly,
 	// so new dishes/items only need a class — no list to keep in sync here.
 	public class Main : BaseMod, IAutoRegisterAll
 	{
-		public const string MOD_GUID = "ruben.transylvanianhungariancooking";
-		public const string MOD_NAME = "Transylvanian-Hungarian Cooking";
+		public const string MOD_GUID = "ruben.hungariantransylvaniancooking";
+		public const string MOD_NAME = "Hungarian-Transylvanian Cooking";
 		public const string MOD_AUTHOR = "Ruben";
 		public const string MOD_VERSION = "0.1.0";
 		public const string MOD_GAMEVERSION = ">=1.1.0";

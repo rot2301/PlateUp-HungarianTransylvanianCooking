@@ -13,7 +13,7 @@ using UnityEngine;
 //   Plate + Fried Lángos (+ Grated Cheese once the topping card is picked)  -->  Plated Lángos
 //
 // UniqueNameIDs are hashed into save data, so never rename them after release.
-namespace TransylvanianHungarianCooking.Langos
+namespace HungarianTransylvanianCooking.Langos
 {
 	public class LangosDough : CustomItemGroup
 	{

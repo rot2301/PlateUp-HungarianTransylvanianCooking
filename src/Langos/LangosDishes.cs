@@ -4,7 +4,7 @@ using KitchenLib.References;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace TransylvanianHungarianCooking.Langos
+namespace HungarianTransylvanianCooking.Langos
 {
 	/// <summary>Starting dish: plain fried lángos.</summary>
 	public class LangosDish : CustomDish

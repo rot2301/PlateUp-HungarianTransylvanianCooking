@@ -1,7 +1,7 @@
-using TransylvanianHungarianCooking.Utils;
+using HungarianTransylvanianCooking.Utils;
 using UnityEngine;
 
-namespace TransylvanianHungarianCooking.Langos
+namespace HungarianTransylvanianCooking.Langos
 {
 	/// <summary>Placeholder primitive models for the lángos chain. Sizes are in world units (a counter is 1 wide).</summary>
 	internal static class LangosModels
