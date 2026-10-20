@@ -8,7 +8,7 @@ namespace HungarianTransylvanianCooking.Langos
 	/// <summary>Placeholder primitive models for the lángos chain. Sizes are in world units (a counter is 1 wide).</summary>
 	internal static class LangosModels
 	{
-		private const float LangosDiameter = 0.44f;
+		internal const float LangosDiameter = 0.44f;
 
 		private static Material Dough => Prefabs.Flat("Lángos Dough", 0xF1DDB2);
 		private static Material Fried => Prefabs.Flat("Lángos Fried", 0xE6B45C);
@@ -98,27 +98,50 @@ namespace HungarianTransylvanianCooking.Langos
 
 			Prefabs.AddPart(langos, "Middle", PrimitiveType.Sphere, new Vector3(0f, 0.03f, 0f), new Vector3(0.34f, 0.04f, 0.34f), Fried);
 
-			// Hand-stretched dough puffs up unevenly, so each puff gets its own size, height, spacing and reach.
-			// A fixed seed keeps every lángos the same shape.
-			var random = new System.Random(1957);
+			var rim = new GameObject("Rim");
+			rim.transform.SetParent(langos.transform, false);
+			for (int i = 0; i < LangosRim.Puffs; i++)
+				Prefabs.AddPart(rim, $"Puff {i}", PrimitiveType.Sphere, Vector3.zero, Vector3.one, FriedEdge);
+
+			// Every lángos shares this one lumpy shape; each spawned copy turns it to a random angle (see LangosRim.Awake).
+			LangosRim.Shape(rim.transform, new System.Random(1957));
+			rim.AddComponent<LangosRim>();
+			return langos;
+		}
+	}
+
+	/// <summary>
+	/// Turns each fried lángos' rim to a random angle when the game spawns it. The shape itself stays fixed, because the
+	/// pan, hand and plate each spawn their own copy and a reshaped rim would visibly jump between those steps.
+	/// </summary>
+	internal class LangosRim : MonoBehaviour
+	{
+		public const int Puffs = 14;
+		private const float PuffSize = 0.11f;
+		private const float PuffHeight = 0.07f;
+
+		// Only runs on spawned copies: the prefab template sits under an inactive root.
+		private void Awake() => transform.localRotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
+
+		/// <summary>Hand-stretched dough puffs up unevenly, so each puff gets its own size, height, spacing and reach.</summary>
+		public static void Shape(Transform rim, System.Random random)
+		{
 			float Vary(float value, float amount) => value * (1f + ((float)random.NextDouble() * 2f - 1f) * amount);
 
-			const int rimPuffs = 14;
-			const float puffSize = 0.11f;
-			float rimRadius = (LangosDiameter - puffSize) / 2f;
-			for (int i = 0; i < rimPuffs; i++)
+			float rimRadius = (LangosModels.LangosDiameter - PuffSize) / 2f;
+			for (int i = 0; i < rim.childCount && i < Puffs; i++)
 			{
-				float angle = (i + Vary(1f, 0.35f) - 1f) * Mathf.PI * 2f / rimPuffs;
+				float angle = (i + Vary(1f, 0.35f) - 1f) * Mathf.PI * 2f / Puffs;
 				float radius = Vary(rimRadius, 0.08f);
-				float width = Vary(puffSize, 0.3f);
-				float height = Vary(0.07f, 0.3f);
-				var puff = Prefabs.AddPart(langos, $"Rim {i}", PrimitiveType.Sphere,
-					new Vector3(Mathf.Cos(angle) * radius, height / 2f, Mathf.Sin(angle) * radius),
-					// Stretched along the rim so neighbouring puffs blend into a bumpy ring.
-					new Vector3(width, height, Vary(width, 0.25f) * 1.3f), FriedEdge);
-				puff.transform.localRotation = Quaternion.Euler(0f, -angle * Mathf.Rad2Deg, 0f);
+				float width = Vary(PuffSize, 0.3f);
+				float height = Vary(PuffHeight, 0.3f);
+
+				var puff = rim.GetChild(i);
+				puff.localPosition = new Vector3(Mathf.Cos(angle) * radius, height / 2f, Mathf.Sin(angle) * radius);
+				// Stretched along the rim so neighbouring puffs blend into a bumpy ring.
+				puff.localScale = new Vector3(width, height, Vary(width, 0.25f) * 1.3f);
+				puff.localRotation = Quaternion.Euler(0f, -angle * Mathf.Rad2Deg, 0f);
 			}
-			return langos;
 		}
 	}
 }
