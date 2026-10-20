@@ -52,6 +52,30 @@ namespace HungarianTransylvanianCooking.Utils
 		public static GameObject AddDisc(GameObject parent, string name, float y, float diameter, float thickness, Material material)
 			=> AddPart(parent, name, PrimitiveType.Cylinder, new Vector3(0f, y + thickness / 2f, 0f), new Vector3(diameter, thickness / 2f, diameter), material);
 
+		/// <summary>
+		/// Bounds of every mesh under <paramref name="part"/>, in <paramref name="root"/>'s local space.
+		/// Works on inactive prefabs, unlike Renderer.bounds.
+		/// </summary>
+		public static Bounds LocalBounds(GameObject root, GameObject part)
+		{
+			Bounds? total = null;
+			foreach (var filter in part.GetComponentsInChildren<MeshFilter>(true))
+			{
+				if (filter.sharedMesh == null)
+					continue;
+				var toRoot = root.transform.worldToLocalMatrix * filter.transform.localToWorldMatrix;
+				var mesh = filter.sharedMesh.bounds;
+				for (int i = 0; i < 8; i++)
+				{
+					var corner = mesh.center + Vector3.Scale(mesh.extents, new Vector3((i & 1) == 0 ? -1 : 1, (i & 2) == 0 ? -1 : 1, (i & 4) == 0 ? -1 : 1));
+					var point = toRoot.MultiplyPoint3x4(corner);
+					if (total is Bounds b) { b.Encapsulate(point); total = b; }
+					else total = new Bounds(point, Vector3.zero);
+				}
+			}
+			return total ?? new Bounds(Vector3.zero, Vector3.zero);
+		}
+
 		/// <summary>Uses a vanilla material when it exists, otherwise a flat colour with PlateUp's own shader.</summary>
 		public static Material Material(string vanillaName, int fallbackHex)
 		{

@@ -1,4 +1,6 @@
 using HungarianTransylvanianCooking.Utils;
+using KitchenData;
+using KitchenLib.References;
 using UnityEngine;
 
 namespace HungarianTransylvanianCooking.Langos
@@ -9,7 +11,8 @@ namespace HungarianTransylvanianCooking.Langos
 		private const float LangosDiameter = 0.44f;
 
 		private static Material Dough => Prefabs.Flat("Lángos Dough", 0xF1DDB2);
-		private static Material Fried => Prefabs.Flat("Lángos Fried", 0xD99B3C);
+		private static Material Fried => Prefabs.Flat("Lángos Fried", 0xE6B45C);
+		private static Material FriedEdge => Prefabs.Flat("Lángos Fried Edge", 0xB06A26);
 		private static Material Cheese => Prefabs.Flat("Grated Cheese", 0xF8DC6E);
 		private static Material Metal => Prefabs.Material("Metal", 0x9AA0A6);
 		private static Material Plate => Prefabs.Material("Plate", 0xF4F4F0);
@@ -31,14 +34,34 @@ namespace HungarianTransylvanianCooking.Langos
 			return prefab;
 		}
 
-		/// <summary>A frying pan holding one lángos in each possible state; the ItemGroupView toggles which one shows.</summary>
+		/// <summary>
+		/// The vanilla frying pan with one lángos in each possible state on top; the ItemGroupView toggles which one shows.
+		/// The pan itself is copied from the game so it looks the same whether or not something is frying in it.
+		/// </summary>
 		public static GameObject FryingPan(string name, out GameObject raw, out GameObject fried)
 		{
 			var prefab = Prefabs.Create(name);
-			Prefabs.AddDisc(prefab, "Pan", 0f, 0.62f, 0.06f, Metal);
-			Prefabs.AddPart(prefab, "Handle", PrimitiveType.Cube, new Vector3(0.48f, 0.04f, 0f), new Vector3(0.36f, 0.04f, 0.07f), Metal);
-			raw = AddLangos(prefab, "Raw", 0.06f, LangosStage.Raw);
-			fried = AddLangos(prefab, "Fried", 0.06f, LangosStage.Fried);
+			float y = 0.06f;
+
+			var vanilla = GetGDO<Item>(ItemReferences.FryingPan)?.Prefab;
+			if (vanilla != null)
+			{
+				var pan = Object.Instantiate(vanilla, prefab.transform, false);
+				pan.name = "Pan";
+				// Sit the lángos low inside the pan rather than on its rim or handle.
+				var bounds = Prefabs.LocalBounds(prefab, pan);
+				y = bounds.min.y + bounds.size.y * 0.35f;
+				LogInfo($"Vanilla frying pan bounds {bounds.min} to {bounds.max}; lángos placed at y={y:0.###}");
+			}
+			else
+			{
+				LogWarning("Vanilla frying pan prefab not found, using a placeholder pan");
+				Prefabs.AddDisc(prefab, "Pan", 0f, 0.62f, 0.06f, Metal);
+				Prefabs.AddPart(prefab, "Handle", PrimitiveType.Cube, new Vector3(0.48f, 0.04f, 0f), new Vector3(0.36f, 0.04f, 0.07f), Metal);
+			}
+
+			raw = AddLangos(prefab, "Raw", y, LangosStage.Raw);
+			fried = AddLangos(prefab, "Fried", y, LangosStage.Fried);
 			return prefab;
 		}
 
@@ -65,11 +88,27 @@ namespace HungarianTransylvanianCooking.Langos
 
 		private static GameObject AddLangos(GameObject parent, string name, float y, LangosStage stage)
 		{
-			var material = stage == LangosStage.Fried ? Fried : Dough;
-			// Fried lángos puffs up, so it gets a domed sphere instead of a flat disc.
 			if (stage == LangosStage.Raw)
-				return Prefabs.AddDisc(parent, name, y, LangosDiameter, 0.03f, material);
-			return Prefabs.AddPart(parent, name, PrimitiveType.Sphere, new Vector3(0f, y + 0.03f, 0f), new Vector3(LangosDiameter, 0.07f, LangosDiameter), material);
+				return Prefabs.AddDisc(parent, name, y, LangosDiameter, 0.03f, Dough);
+
+			// Fried lángos: a lighter, slightly domed middle inside a darker, puffed-up rim.
+			var langos = new GameObject(name);
+			langos.transform.SetParent(parent.transform, false);
+			langos.transform.localPosition = new Vector3(0f, y, 0f);
+
+			Prefabs.AddPart(langos, "Middle", PrimitiveType.Sphere, new Vector3(0f, 0.03f, 0f), new Vector3(0.34f, 0.04f, 0.34f), Fried);
+
+			const int rimPuffs = 12;
+			const float puffSize = 0.12f;
+			float rimRadius = (LangosDiameter - puffSize) / 2f;
+			for (int i = 0; i < rimPuffs; i++)
+			{
+				float angle = i * Mathf.PI * 2f / rimPuffs;
+				Prefabs.AddPart(langos, $"Rim {i}", PrimitiveType.Sphere,
+					new Vector3(Mathf.Cos(angle) * rimRadius, 0.035f, Mathf.Sin(angle) * rimRadius),
+					new Vector3(puffSize, 0.07f, puffSize), FriedEdge);
+			}
+			return langos;
 		}
 	}
 }
