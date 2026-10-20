@@ -139,13 +139,14 @@ namespace HungarianTransylvanianCooking.Langos
 	{
 		public override string UniqueNameID => "Langos Garlic Dish";
 		protected override LangosTopping Part => LangosTopping.Garlic;
-		protected override Item Topping => GetCastedGDO<Item, GarlicPaste>();
-		public override HashSet<Item> MinimumIngredients => new() { GetCastedGDO<Item, Garlic>() };
+		// Garlic comes from IngredientLib: whole --chop--> peeled --chop--> minced.
+		protected override Item Topping => GetCastedGDO<Item, IngredientLib.Ingredient.Items.MincedGarlic>();
+		public override HashSet<Item> MinimumIngredients => new() { GetCastedGDO<Item, IngredientLib.Ingredient.Items.Garlic>() };
 		public override HashSet<Process> RequiredProcesses => new() { GetGDO<Process>(ProcessReferences.Chop) };
 		protected override string Title => "Fokhagymás Lángos";
-		protected override string Description => "Customers may ask for garlic paste on their lángos.";
+		protected override string Description => "Customers may ask for minced garlic on their lángos.";
 		protected override string FlavourText => "Keeps the vampires away.";
-		protected override string RecipeText => "Chop garlic into a paste, then add it to a plated lángos.";
+		protected override string RecipeText => "Chop garlic to peel it, chop it again to mince it, then add it to a plated lángos.";
 	}
 
 	public class LangosSourCreamDish : LangosToppingCard

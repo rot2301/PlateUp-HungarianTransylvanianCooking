@@ -8,47 +8,13 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-// Custom topping ingredients that the base game doesn't have:
-//   Garlic (provider)  --chop-->  Garlic Paste
+// Custom topping ingredients that neither the base game nor IngredientLib has:
 //   Sour Cream (provider)
 //   Smoked Ham (provider)  --chop-->  Chopped Smoked Ham
 //
 // UniqueNameIDs are hashed into save data, so never rename them after release.
 namespace HungarianTransylvanianCooking.Langos
 {
-	public class Garlic : CustomItem
-	{
-		public override string UniqueNameID => "Garlic";
-		public override string ColourBlindTag => "Ga";
-		public override ItemStorage ItemStorageFlags => ItemStorage.StackableFood;
-		public override ItemCategory ItemCategory => ItemCategory.Generic;
-		public override Appliance DedicatedProvider => GetCastedGDO<Appliance, GarlicProvider>();
-
-		public override List<Item.ItemProcess> Processes => new()
-		{
-			new()
-			{
-				Process = GetGDO<Process>(ProcessReferences.Chop),
-				Duration = 1.5f,
-				Result = GetCastedGDO<Item, GarlicPaste>()
-			}
-		};
-
-		private GameObject _prefab;
-		public override GameObject Prefab => _prefab ??= LangosModels.GarlicBulb("Garlic");
-	}
-
-	public class GarlicPaste : CustomItem
-	{
-		public override string UniqueNameID => "Garlic Paste";
-		public override string ColourBlindTag => "G";
-		public override ItemStorage ItemStorageFlags => ItemStorage.StackableFood;
-		public override ItemCategory ItemCategory => ItemCategory.Generic;
-
-		private GameObject _prefab;
-		public override GameObject Prefab => _prefab ??= LangosModels.GarlicPaste("Garlic Paste");
-	}
-
 	public class SourCream : CustomItem
 	{
 		public override string UniqueNameID => "Sour Cream";
@@ -92,15 +58,6 @@ namespace HungarianTransylvanianCooking.Langos
 
 		private GameObject _prefab;
 		public override GameObject Prefab => _prefab ??= LangosModels.ChoppedHam("Chopped Smoked Ham");
-	}
-
-	public class GarlicProvider : LangosProvider<Garlic>
-	{
-		public override string UniqueNameID => "Garlic Provider";
-		protected override string ProviderName => "Garlic";
-		protected override string ProviderDescription => "Provides garlic";
-		protected override int VanillaLook => ApplianceReferences.SourceOnion;
-		protected override string[] VanillaContents => new[] { "onion" };
 	}
 
 	public class SourCreamProvider : LangosProvider<SourCream>

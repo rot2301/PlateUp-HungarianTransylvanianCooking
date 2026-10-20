@@ -14,9 +14,7 @@ namespace HungarianTransylvanianCooking.Langos
 		private static Material Fried => Prefabs.Flat("Lángos Fried", 0xE6B45C);
 		private static Material FriedEdge => Prefabs.Flat("Lángos Fried Edge", 0xB06A26);
 		private static Material Cheese => Prefabs.Flat("Grated Cheese", 0xF8DC6E);
-		private static Material GarlicSkin => Prefabs.Flat("Garlic Skin", 0xF2EEE2);
-		private static Material GarlicTip => Prefabs.Flat("Garlic Tip", 0xC9B58C);
-		private static Material GarlicPasteColour => Prefabs.Flat("Garlic Paste", 0xEDE3BF);
+		private static Material MincedGarlic => Prefabs.Flat("Minced Garlic", 0xEDE3BF);
 		private static Material Cream => Prefabs.Flat("Sour Cream", 0xFBF8EE);
 		private static Material Tub => Prefabs.Flat("Sour Cream Tub", 0x6FA8DC);
 		private static Material Onion => Prefabs.Flat("Chopped Onion", 0xE7D3E8);
@@ -102,7 +100,7 @@ namespace HungarianTransylvanianCooking.Langos
 						Prefabs.AddDisc(group, "Spread", spread, 0.26f, 0.012f, Chocolate);
 						break;
 					case LangosTopping.Garlic:
-						Scatter(group, PrimitiveType.Sphere, 4, 20f, 0.05f, 0.1f, new Vector3(0.05f, 0.02f, 0.05f), spread + 0.012f, GarlicPasteColour);
+						Scatter(group, PrimitiveType.Cube, 9, 20f, 0.03f, 0.11f, new Vector3(0.022f, 0.015f, 0.022f), bits, MincedGarlic);
 						break;
 					case LangosTopping.Cheese:
 						Scatter(group, PrimitiveType.Cube, 6, 0f, 0f, 0.12f, new Vector3(0.09f, 0.015f, 0.025f), bits, Cheese);
@@ -148,27 +146,6 @@ namespace HungarianTransylvanianCooking.Langos
 				var piece = Prefabs.AddPart(group, $"Piece {i}", type, new Vector3(Mathf.Cos(angle) * radius, y + Between(-0.004f, 0.004f), Mathf.Sin(angle) * radius), size, material);
 				piece.transform.localRotation = Quaternion.Euler(Between(-12f, 12f), Between(0f, 360f), Between(-12f, 12f));
 			}
-		}
-
-		public static GameObject GarlicBulb(string name)
-		{
-			var prefab = Prefabs.Create(name);
-			// A few cloves bulging out of the bulb, plus the dried tip.
-			Prefabs.AddPart(prefab, "Bulb", PrimitiveType.Sphere, new Vector3(0f, 0.08f, 0f), new Vector3(0.2f, 0.16f, 0.2f), GarlicSkin);
-			for (int i = 0; i < 5; i++)
-			{
-				float angle = i * 72f * Mathf.Deg2Rad;
-				Prefabs.AddPart(prefab, $"Clove {i}", PrimitiveType.Sphere, new Vector3(Mathf.Cos(angle) * 0.06f, 0.075f, Mathf.Sin(angle) * 0.06f), new Vector3(0.1f, 0.14f, 0.1f), GarlicSkin);
-			}
-			Prefabs.AddPart(prefab, "Tip", PrimitiveType.Cylinder, new Vector3(0f, 0.18f, 0f), new Vector3(0.03f, 0.03f, 0.03f), GarlicTip);
-			return prefab;
-		}
-
-		public static GameObject GarlicPaste(string name)
-		{
-			var prefab = Prefabs.Create(name);
-			Prefabs.AddPart(prefab, "Paste", PrimitiveType.Sphere, new Vector3(0f, 0.03f, 0f), new Vector3(0.16f, 0.06f, 0.16f), GarlicPasteColour);
-			return prefab;
 		}
 
 		/// <summary>A tejföl cup: tapered towards the bottom, with the cream showing at the top.</summary>

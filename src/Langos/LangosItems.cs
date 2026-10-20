@@ -212,7 +212,7 @@ namespace HungarianTransylvanianCooking.Langos
 		public static List<Topping> Savoury => new()
 		{
 			new(LangosTopping.SourCream, GetCastedGDO<Item, SourCream>(), "SC"),
-			new(LangosTopping.Garlic, GetCastedGDO<Item, GarlicPaste>(), "G"),
+			new(LangosTopping.Garlic, GetCastedGDO<Item, IngredientLib.Ingredient.Items.MincedGarlic>(), "G"),
 			new(LangosTopping.Cheese, GetGDO<Item>(ItemReferences.CheeseGrated), "Ch"),
 			new(LangosTopping.Onion, GetGDO<Item>(ItemReferences.OnionChopped), "O"),
 			new(LangosTopping.Pickles, GetGDO<Item>(ItemReferences.Pickle), "P"),

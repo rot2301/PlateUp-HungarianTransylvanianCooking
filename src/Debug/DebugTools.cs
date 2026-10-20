@@ -87,7 +87,7 @@ namespace HungarianTransylvanianCooking.Debugging
 			}
 
 			// Our own providers, to check where the item sign ended up on the copied crate.
-			foreach (var custom in new CustomAppliance[] { GetCustomGameDataObject<GarlicProvider>() as CustomAppliance, GetCustomGameDataObject<SourCreamProvider>() as CustomAppliance, GetCustomGameDataObject<SmokedHamProvider>() as CustomAppliance })
+			foreach (var custom in new CustomAppliance[] { GetCustomGameDataObject<SourCreamProvider>() as CustomAppliance, GetCustomGameDataObject<SmokedHamProvider>() as CustomAppliance })
 			{
 				if (custom == null)
 					continue;
