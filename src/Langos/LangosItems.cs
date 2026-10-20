@@ -4,13 +4,18 @@ using KitchenLib.Customs;
 using KitchenLib.References;
 using KitchenLib.Utils;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 // Lángos chain:
 //   Flour + Oil (from the bottle, which is kept)  --combine-->  Lángos Dough  --knead (counter)-->  Raw Lángos
 //   Frying Pan (vanilla) + Raw Lángos  --combine-->  Lángos Pan  --cook (hob)-->  Fried Pan  --(too long)-->  Burned Frying Pan (vanilla, wash it)
 //   Fried Pan  --take out-->  Fried Lángos (+ the empty pan stays behind for the next one)
-//   Plate + Fried Lángos (+ Grated Cheese once the topping card is picked)  -->  Plated Lángos
+//   Plate + Fried Lángos (+ up to 3 savoury toppings)  -->  Plated Lángos
+//   Plate + Fried Lángos + 1-2 sweet toppings  -->  Plated Sweet Lángos
+//
+// Savoury and sweet never mix: the game picks the group that fits *everything* on the plate, and no group accepts both.
+// Plate + lángos alone is a (plain) savoury lángos; adding a sweet topping turns it into the sweet one.
 //
 // UniqueNameIDs are hashed into save data, so never rename them after release.
 namespace HungarianTransylvanianCooking.Langos
@@ -185,6 +190,59 @@ namespace HungarianTransylvanianCooking.Langos
 		}
 	}
 
+	/// <summary>Every lángos topping, with the plate model part that shows it. Toppings within a kind combine freely.</summary>
+	internal static class LangosToppings
+	{
+		public class Topping
+		{
+			public readonly LangosTopping Part;
+			public readonly Item Item;
+			public readonly string Label;
+
+			public Topping(LangosTopping part, Item item, string label)
+			{
+				Part = part;
+				Item = item;
+				Label = label;
+			}
+		}
+
+		public static List<Topping> Savoury => new()
+		{
+			new(LangosTopping.SourCream, GetCastedGDO<Item, SourCream>(), "SC"),
+			new(LangosTopping.Garlic, GetCastedGDO<Item, GarlicPaste>(), "G"),
+			new(LangosTopping.Cheese, GetGDO<Item>(ItemReferences.CheeseGrated), "Ch"),
+			new(LangosTopping.Onion, GetGDO<Item>(ItemReferences.OnionChopped), "O"),
+			new(LangosTopping.Pickles, GetGDO<Item>(ItemReferences.Pickle), "P"),
+			new(LangosTopping.Ham, GetCastedGDO<Item, ChoppedSmokedHam>(), "H")
+		};
+
+		public static List<Topping> Sweet => new()
+		{
+			new(LangosTopping.Chocolate, GetGDO<Item>(ItemReferences.ChocolateMelted), "Co"),
+			new(LangosTopping.Nuts, GetGDO<Item>(ItemReferences.NutsChopped), "N")
+		};
+
+		public static ItemGroup.ItemSet PlateAndLangos => new()
+		{
+			Items = new() { GetGDO<Item>(ItemReferences.Plate), GetCastedGDO<Item, FriedLangos>() },
+			IsMandatory = true,
+			Min = 2,
+			Max = 2
+		};
+
+		public static List<ItemGroupView.ColourBlindLabel> Labels(List<Topping> toppings)
+			=> toppings.Select(t => new ItemGroupView.ColourBlindLabel { Item = t.Item, Text = t.Label }).ToList();
+
+		public static void SetupView(GameObject prefab, List<Topping> toppings)
+		{
+			var view = prefab.TryAddComponent<ItemGroupView>();
+			view.ComponentGroups = new() { new() { Item = GetCastedGDO<Item, FriedLangos>(), Objects = new() { prefab.GetChild("Langos") } } };
+			foreach (var topping in toppings)
+				view.ComponentGroups.Add(new() { Item = topping.Item, Objects = new() { prefab.GetChild(topping.Part.ToString()) } });
+		}
+	}
+
 	public class PlatedLangos : CustomItemGroup<ItemGroupView>
 	{
 		public override string UniqueNameID => "Plated Langos";
@@ -196,46 +254,50 @@ namespace HungarianTransylvanianCooking.Langos
 
 		public override List<ItemGroup.ItemSet> Sets => new()
 		{
+			LangosToppings.PlateAndLangos,
+			// Customers only ask for a topping once its card (e.g. LangosCheeseDish) is unlocked.
 			new()
 			{
-				Items = new()
-				{
-					GetGDO<Item>(ItemReferences.Plate),
-					GetCastedGDO<Item, FriedLangos>()
-				},
-				IsMandatory = true,
-				Min = 2,
-				Max = 2
-			},
-			// Toppings: customers only ask for these once their card (e.g. LangosCheeseDish) is unlocked.
-			new()
-			{
-				Items = new()
-				{
-					GetGDO<Item>(ItemReferences.CheeseGrated)
-				},
+				Items = LangosToppings.Savoury.Select(t => t.Item).ToList(),
 				RequiresUnlock = true,
 				Min = 0,
-				Max = 1
+				Max = 3
 			}
 		};
 
-		public override List<ItemGroupView.ColourBlindLabel> Labels => new()
-		{
-			new() { Item = GetGDO<Item>(ItemReferences.CheeseGrated), Text = "Ch" }
-		};
+		public override List<ItemGroupView.ColourBlindLabel> Labels => LangosToppings.Labels(LangosToppings.Savoury);
 
 		private GameObject _prefab;
-		public override GameObject Prefab => _prefab ??= LangosModels.Plated("Plated Langos", out _, out _);
+		public override GameObject Prefab => _prefab ??= LangosModels.Plated("Plated Langos", LangosToppings.Savoury.Select(t => t.Part).ToArray());
+		public override void SetupPrefab(GameObject prefab) => LangosToppings.SetupView(prefab, LangosToppings.Savoury);
+	}
 
-		public override void SetupPrefab(GameObject prefab)
+	public class PlatedSweetLangos : CustomItemGroup<ItemGroupView>
+	{
+		public override string UniqueNameID => "Plated Sweet Langos";
+		public override ItemStorage ItemStorageFlags => ItemStorage.None;
+		public override ItemCategory ItemCategory => ItemCategory.Generic;
+		public override ItemValue ItemValue => ItemValue.Medium;
+		public override Item DisposesTo => GetGDO<Item>(ItemReferences.Plate);
+		public override Item DirtiesTo => GetGDO<Item>(ItemReferences.PlateDirty);
+
+		public override List<ItemGroup.ItemSet> Sets => new()
 		{
-			var view = prefab.TryAddComponent<ItemGroupView>();
-			view.ComponentGroups = new()
+			LangosToppings.PlateAndLangos,
+			// At least one sweet topping, so a plain lángos always stays savoury. Not mandatory, so a sweet
+			// lángos with too few toppings still counts as a partly finished one instead of an invalid plate.
+			new()
 			{
-				new() { Item = GetCastedGDO<Item, FriedLangos>(), Objects = new() { prefab.GetChild("Langos") } },
-				new() { Item = GetGDO<Item>(ItemReferences.CheeseGrated), Objects = new() { prefab.GetChild("Cheese") } }
-			};
-		}
+				Items = LangosToppings.Sweet.Select(t => t.Item).ToList(),
+				Min = 1,
+				Max = 2
+			}
+		};
+
+		public override List<ItemGroupView.ColourBlindLabel> Labels => LangosToppings.Labels(LangosToppings.Sweet);
+
+		private GameObject _prefab;
+		public override GameObject Prefab => _prefab ??= LangosModels.Plated("Plated Sweet Langos", LangosToppings.Sweet.Select(t => t.Part).ToArray());
+		public override void SetupPrefab(GameObject prefab) => LangosToppings.SetupView(prefab, LangosToppings.Sweet);
 	}
 }

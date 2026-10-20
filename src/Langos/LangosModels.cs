@@ -14,6 +14,17 @@ namespace HungarianTransylvanianCooking.Langos
 		private static Material Fried => Prefabs.Flat("Lángos Fried", 0xE6B45C);
 		private static Material FriedEdge => Prefabs.Flat("Lángos Fried Edge", 0xB06A26);
 		private static Material Cheese => Prefabs.Flat("Grated Cheese", 0xF8DC6E);
+		private static Material GarlicSkin => Prefabs.Flat("Garlic Skin", 0xF2EEE2);
+		private static Material GarlicTip => Prefabs.Flat("Garlic Tip", 0xC9B58C);
+		private static Material GarlicPasteColour => Prefabs.Flat("Garlic Paste", 0xEDE3BF);
+		private static Material Cream => Prefabs.Flat("Sour Cream", 0xFBF8EE);
+		private static Material Tub => Prefabs.Flat("Sour Cream Tub", 0x6FA8DC);
+		private static Material Onion => Prefabs.Flat("Chopped Onion", 0xE7D3E8);
+		private static Material Pickle => Prefabs.Flat("Pickle", 0x7E9A3A);
+		private static Material Ham => Prefabs.Flat("Smoked Ham", 0xC96B63);
+		private static Material HamRind => Prefabs.Flat("Smoked Ham Rind", 0x6B3A22);
+		private static Material Chocolate => Prefabs.Flat("Melted Chocolate", 0x4A2A18);
+		private static Material Nuts => Prefabs.Flat("Chopped Nuts", 0xC9A06A);
 		private static Material Metal => Prefabs.Material("Metal", 0x9AA0A6);
 		private static Material Plate => Prefabs.Material("Plate", 0xF4F4F0);
 
@@ -65,22 +76,114 @@ namespace HungarianTransylvanianCooking.Langos
 			return prefab;
 		}
 
-		public static GameObject Plated(string name, out GameObject langos, out GameObject cheese)
+		/// <summary>
+		/// A plated lángos with a model part for each of <paramref name="toppings"/>, each named after its topping so an
+		/// ItemGroupView can toggle it. Every topping sits in its own spots so any combination stays readable.
+		/// </summary>
+		public static GameObject Plated(string name, params LangosTopping[] toppings)
 		{
 			var prefab = Prefabs.Create(name);
 			Prefabs.AddDisc(prefab, "Plate", 0f, 0.6f, 0.03f, Plate);
-			langos = AddLangos(prefab, "Langos", 0.03f, LangosStage.Fried);
+			AddLangos(prefab, "Langos", 0.03f, LangosStage.Fried);
 
-			cheese = new GameObject("Cheese");
-			cheese.transform.SetParent(prefab.transform, false);
-			// A loose scatter of shreds on top of the lángos.
-			Vector2[] spots = { new(0f, 0f), new(0.08f, 0.05f), new(-0.07f, 0.07f), new(0.05f, -0.09f), new(-0.09f, -0.04f), new(0.12f, -0.02f) };
-			for (int i = 0; i < spots.Length; i++)
+			// The lángos' middle tops out around y=0.08 on the plate; spreads go first, bits on top.
+			const float spread = 0.08f;
+			const float bits = 0.095f;
+			foreach (var topping in toppings)
 			{
-				var shred = Prefabs.AddPart(cheese, $"Shred {i}", PrimitiveType.Cube,
-					new Vector3(spots[i].x, 0.09f, spots[i].y), new Vector3(0.09f, 0.015f, 0.025f), Cheese);
-				shred.transform.localRotation = Quaternion.Euler(0f, i * 47f, 0f);
+				var group = new GameObject(topping.ToString());
+				group.transform.SetParent(prefab.transform, false);
+				switch (topping)
+				{
+					case LangosTopping.SourCream:
+						Prefabs.AddDisc(group, "Spread", spread, 0.24f, 0.012f, Cream);
+						break;
+					case LangosTopping.Chocolate:
+						Prefabs.AddDisc(group, "Spread", spread, 0.26f, 0.012f, Chocolate);
+						break;
+					case LangosTopping.Garlic:
+						Scatter(group, PrimitiveType.Sphere, 4, 20f, 0.05f, 0.1f, new Vector3(0.05f, 0.02f, 0.05f), spread + 0.012f, GarlicPasteColour);
+						break;
+					case LangosTopping.Cheese:
+						Scatter(group, PrimitiveType.Cube, 6, 0f, 0f, 0.12f, new Vector3(0.09f, 0.015f, 0.025f), bits, Cheese);
+						break;
+					case LangosTopping.Onion:
+						Scatter(group, PrimitiveType.Cube, 6, 35f, 0.04f, 0.11f, new Vector3(0.035f, 0.025f, 0.035f), bits, Onion);
+						break;
+					case LangosTopping.Pickles:
+						for (int i = 0; i < 3; i++)
+						{
+							float angle = (100f + i * 120f) * Mathf.Deg2Rad;
+							Prefabs.AddDisc(group, $"Slice {i}", bits - 0.006f, 0.075f, 0.012f, Pickle).transform.localPosition
+								+= new Vector3(Mathf.Cos(angle) * 0.09f, 0f, Mathf.Sin(angle) * 0.09f);
+						}
+						break;
+					case LangosTopping.Ham:
+						Scatter(group, PrimitiveType.Cube, 5, 60f, 0.03f, 0.1f, new Vector3(0.045f, 0.03f, 0.045f), bits, Ham);
+						break;
+					case LangosTopping.Nuts:
+						Scatter(group, PrimitiveType.Cube, 8, 15f, 0.02f, 0.11f, new Vector3(0.03f, 0.022f, 0.03f), bits, Nuts);
+						break;
+				}
 			}
+			return prefab;
+		}
+
+		/// <summary>Pieces spread around the middle, alternating between an inner and outer ring and turned every which way.</summary>
+		private static void Scatter(GameObject group, PrimitiveType type, int count, float startAngle, float innerRadius, float outerRadius, Vector3 scale, float y, Material material)
+		{
+			for (int i = 0; i < count; i++)
+			{
+				float angle = (startAngle + i * 360f / count) * Mathf.Deg2Rad;
+				float radius = i % 2 == 0 ? outerRadius : innerRadius;
+				var piece = Prefabs.AddPart(group, $"Piece {i}", type, new Vector3(Mathf.Cos(angle) * radius, y, Mathf.Sin(angle) * radius), scale, material);
+				piece.transform.localRotation = Quaternion.Euler(0f, startAngle + i * 47f, 0f);
+			}
+		}
+
+		public static GameObject GarlicBulb(string name)
+		{
+			var prefab = Prefabs.Create(name);
+			// A few cloves bulging out of the bulb, plus the dried tip.
+			Prefabs.AddPart(prefab, "Bulb", PrimitiveType.Sphere, new Vector3(0f, 0.08f, 0f), new Vector3(0.2f, 0.16f, 0.2f), GarlicSkin);
+			for (int i = 0; i < 5; i++)
+			{
+				float angle = i * 72f * Mathf.Deg2Rad;
+				Prefabs.AddPart(prefab, $"Clove {i}", PrimitiveType.Sphere, new Vector3(Mathf.Cos(angle) * 0.06f, 0.075f, Mathf.Sin(angle) * 0.06f), new Vector3(0.1f, 0.14f, 0.1f), GarlicSkin);
+			}
+			Prefabs.AddPart(prefab, "Tip", PrimitiveType.Cylinder, new Vector3(0f, 0.18f, 0f), new Vector3(0.03f, 0.03f, 0.03f), GarlicTip);
+			return prefab;
+		}
+
+		public static GameObject GarlicPaste(string name)
+		{
+			var prefab = Prefabs.Create(name);
+			Prefabs.AddPart(prefab, "Paste", PrimitiveType.Sphere, new Vector3(0f, 0.03f, 0f), new Vector3(0.16f, 0.06f, 0.16f), GarlicPasteColour);
+			return prefab;
+		}
+
+		public static GameObject SourCreamTub(string name)
+		{
+			var prefab = Prefabs.Create(name);
+			Prefabs.AddDisc(prefab, "Tub", 0f, 0.2f, 0.12f, Tub);
+			Prefabs.AddDisc(prefab, "Cream", 0.12f, 0.18f, 0.01f, Cream);
+			return prefab;
+		}
+
+		public static GameObject SmokedHam(string name)
+		{
+			var prefab = Prefabs.Create(name);
+			Prefabs.AddPart(prefab, "Ham", PrimitiveType.Cube, new Vector3(0f, 0.08f, 0f), new Vector3(0.3f, 0.16f, 0.2f), Ham);
+			// Dark smoked rind on top and down the sides.
+			Prefabs.AddPart(prefab, "Rind", PrimitiveType.Cube, new Vector3(0f, 0.165f, 0f), new Vector3(0.31f, 0.025f, 0.21f), HamRind);
+			Prefabs.AddPart(prefab, "Rind Side", PrimitiveType.Cube, new Vector3(0f, 0.09f, 0.1f), new Vector3(0.31f, 0.15f, 0.015f), HamRind);
+			return prefab;
+		}
+
+		public static GameObject ChoppedHam(string name)
+		{
+			var prefab = Prefabs.Create(name);
+			Scatter(prefab, PrimitiveType.Cube, 6, 0f, 0.03f, 0.08f, new Vector3(0.06f, 0.05f, 0.06f), 0.025f, Ham);
 			return prefab;
 		}
 
@@ -144,4 +247,7 @@ namespace HungarianTransylvanianCooking.Langos
 			}
 		}
 	}
+
+	/// <summary>The model parts of a plated lángos. Names double as the child object names.</summary>
+	public enum LangosTopping { SourCream, Garlic, Cheese, Onion, Pickles, Ham, Chocolate, Nuts }
 }
